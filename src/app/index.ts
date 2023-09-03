@@ -6,15 +6,16 @@ import dotenv from 'dotenv'
 const app = fastify()
 dotenv.config()
 
-const PORT = 5555
-const HOST = '0.0.0.0'
+const secret = process.env.JWT_SECRET || 'secret'
+const port = process.env.PORT ? Number(process.env.PORT) : 80
+const host = process.env.HOST ? process.env.HOST : ''
 
 app.register(cors, {
   origin: true
 })
 
 app.register(jwt, {
-  secret: process.env.JWT_SECRET!
+  secret
 })
 
 app.get('/', () => {
@@ -23,9 +24,9 @@ app.get('/', () => {
 
 app
   .listen({
-    port: PORT,
-    host: HOST
+    port,
+    host
   })
   .then(() => {
-    console.log(`HTTP running on http://localhost:${PORT}`)
+    console.log(`HTTP running on http://localhost:${port}`)
   })
