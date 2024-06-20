@@ -2,7 +2,7 @@
   "window.zoomLevel": 0,
   "editor.inlineSuggest.enabled": true,
   "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": true
+    "source.fixAll.eslint": "explicit"
   },
   "search.showLineNumbers": false,
   "workbench.editor.enablePreview": false,

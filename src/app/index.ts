@@ -18,7 +18,7 @@ app.register(jwt, {
   secret
 })
 
-app.get('/', () => {
+app.get('/api/hello', () => {
   return 'Hello World'
 })
 
