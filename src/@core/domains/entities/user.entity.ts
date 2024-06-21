@@ -4,7 +4,7 @@ export interface IUser {
   id?: bigint
   email: string
   password: string
-  avatar?: string
+  avatar?: string | null
   first_name: string
   last_name: string
   birth_date: Date
@@ -15,7 +15,7 @@ export class User {
   private Id: bigint
   private Email: string
   private Password: string
-  private Avatar?: string
+  private Avatar?: string | null
   private FirstName: string
   private LastName: string
   private BirthDate: Date
@@ -69,7 +69,7 @@ export class User {
     return this.Password
   }
 
-  get avatar(): string | undefined {
+  get avatar(): string | undefined | null {
     return this.Avatar
   }
 
