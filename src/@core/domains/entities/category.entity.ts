@@ -1,65 +1,96 @@
+import { z } from 'zod'
+
 export interface ICategory {
-  id: bigint
-  name: string
+  id?: bigint
   tag: string
+  name: string
   icon: string
 }
 
 export class Category {
-  private _id: bigint
-  private _name: string
-  private _tag: string
-  private _icon: string
+  private Id: bigint
+  private Tag: string
+  private Name: string
+  private Icon: string
 
-  constructor(id: bigint, name: string, tag: string, icon: string) {
-    if (!this.isValidId(id)) {
-      throw new Error('INVALID_ID')
+  constructor(category: ICategory) {
+    if (category.id && !this.isValidateId(category.id).success) {
+      throw new Error(this.isValidateId(category.id).error)
     }
-    if (!this.isValidName(name)) {
-      throw new Error('INVALID_NAME')
-    }
-    if (!this.isValidTag(tag)) {
+    if (!category.tag) {
       throw new Error('INVALID_TAG')
     }
-    if (!this.isValidIcon(icon)) {
+    if (!this.isValidateTag(category.tag).success) {
+      throw new Error(this.isValidateTag(category.tag).error)
+    }
+    if (!category.name) {
+      throw new Error('INVALID_NAME')
+    }
+    if (!this.isValidateName(category.name).success) {
+      throw new Error(this.isValidateName(category.name).error)
+    }
+    if (!category.icon) {
       throw new Error('INVALID_ICON')
     }
+    if (!this.isValidateIcon(category.icon).success) {
+      throw new Error(this.isValidateIcon(category.icon).error)
+    }
 
-    this._id = id
-    this._name = name
-    this._tag = tag
-    this._icon = icon
+    this.Id = category.id ?? BigInt(0)
+    this.Tag = category.tag
+    this.Name = category.name
+    this.Icon = category.icon
   }
 
   get id(): bigint {
-    return this._id
-  }
-
-  get name(): string {
-    return this._name
+    return this.Id
   }
 
   get tag(): string {
-    return this._tag
+    return this.Tag
+  }
+
+  get name(): string {
+    return this.Name
   }
 
   get icon(): string {
-    return this._icon
+    return this.Icon
   }
 
-  private isValidId(id: bigint): boolean {
-    return typeof id === 'bigint' && id > 0
+  private isValidateId(id: bigint): ReturnValidation {
+    const validate = z.bigint({ message: 'INVALID_ID' })
+
+    return {
+      success: validate.safeParse(id).success,
+      error: validate.safeParse(id).error?.message
+    }
   }
 
-  private isValidName(name: string): boolean {
-    return typeof name === 'string' && name.length > 0
+  private isValidateTag(tag: string): ReturnValidation {
+    const validate = z.string().min(1, { message: 'INVALID_TAG' })
+
+    return {
+      success: validate.safeParse(tag).success,
+      error: validate.safeParse(tag).error?.message
+    }
   }
 
-  private isValidTag(tag: string): boolean {
-    return typeof tag === 'string' && tag.length > 0
+  private isValidateName(name: string): ReturnValidation {
+    const validate = z.string().min(3, { message: 'INVALID_NAME' })
+
+    return {
+      success: validate.safeParse(name).success,
+      error: validate.safeParse(name).error?.message
+    }
   }
 
-  private isValidIcon(icon: string): boolean {
-    return typeof icon === 'string' && icon.length > 0
+  private isValidateIcon(icon: string): ReturnValidation {
+    const validate = z.string({ message: 'INVALID_ICON' })
+
+    return {
+      success: validate.safeParse(icon).success,
+      error: validate.safeParse(icon).error?.message
+    }
   }
 }

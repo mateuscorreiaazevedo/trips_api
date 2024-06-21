@@ -7,87 +7,118 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// Primaries Relations
 model User {
-  id            BigInt         @id @default(dbgenerated("ulid_generate()"))
-  email         String         @unique
-  first_name    String
-  last_name     String
-  password      String
-  avatar_url    String         @default("https://www.gravatar.com/avatar/00000000000000000000000000000000?s=200&d=mm")
-  birth_date    DateTime
-  created_at    DateTime       @default(now())
-  updated_at    DateTime       @updatedAt
+  id         BigInt   @id @default(autoincrement())
+  email      String   @unique
+  password   String
+  avatar     String?
+  first_name String
+  last_name  String
+  birth_date DateTime
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  // Relations
   accomodations Accomodation[]
   bookings      Booking[]
-  favorites     Favorite[]
-  comments      Comment[]
-  stars         Star[]
-
-  @@map("users")
-}
-
-model Accomodation {
-  id          BigInt    @id @default(dbgenerated("ulid_generate()"))
-  title       String
-  description String
-  images      Image[]
-  stars       Star[]
-  comments    Comment[]
-  category_id BigInt
-
-  price_per_night Float
-  cleaning_fee    Float
-  discount        Float?
-
-  guests       Int
-  babies       Int?
-  accepts_pets Boolean
-  pets         Int?
-
-  rooms     Int
-  beds      Int
-  bathrooms Int
-  kitchen   Boolean
-  services  Service @relation(fields: [service_id], references: [id])
-
-  location    Location   @relation(fields: [location_id], references: [id])
-  created_at  DateTime   @default(now())
-  updated_at  DateTime   @updatedAt
-  host        User       @relation(fields: [host_id], references: [id])
-  host_id     BigInt
-  Booking     Booking[]
-  Favorite    Favorite[]
-  location_id BigInt
-
-  register_step String?
-  service_id    BigInt
-
-  @@map("accomodations")
+  reviews       Review[]
 }
 
 model Category {
-  id      BigInt   @id @default(dbgenerated("ulid_generate()"))
-  tag     String   @unique
-  name    String
-  icon    String
+  id   BigInt @id @default(autoincrement())
+  tag  String @unique
+  name String
+  icon String
+
   created DateTime @default(now())
-  updated DateTime @updatedAt
 
   @@map("categories")
 }
 
-model Service {
-  id BigInt @id @default(dbgenerated("ulid_generate()"))
+model Accomodation {
+  id      BigInt   @id @default(autoincrement())
+  host    User     @relation(fields: [host_id], references: [id])
+  host_id BigInt
+  reviews Review[]
 
-  laundry Boolean
-  wifi    Boolean
-  tv      Boolean
-  phone   Boolean
-  ac      Boolean
+  title       String
+  description String?
+  images      Image[]
+  category_id BigInt
+
+  price_per_night Float
+  cleaning_fee    Float
+
+  rooms      Int
+  beds       Int
+  bathrooms  Int
+  services   Service @relation(fields: [service_id], references: [id])
+  service_id BigInt
+
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  bookings   Booking[]
+
+  @@map("accomodations")
+}
+
+model Booking {
+  id      BigInt @id @default(autoincrement())
+  user    User   @relation(fields: [user_id], references: [id])
+  user_id BigInt
+
+  accomodation    Accomodation @relation(fields: [accomodation_id], references: [id])
+  accomodation_id BigInt
+
+  checkin_date   DateTime
+  checkout_date  DateTime
+  checked_in     Boolean   @default(false)
+  checked_out    Boolean   @default(false)
+  cancelled_date DateTime?
+  cancelled      Boolean   @default(false)
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("bookings")
+}
+
+model Review {
+  id              BigInt        @id @default(autoincrement())
+  accomodation    Accomodation? @relation(fields: [accomodation_id], references: [id])
+  accomodation_id BigInt?
+  user            User          @relation(fields: [user_id], references: [id])
+  user_id         BigInt
+
+  rating  Int
+  comment String
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("reviews")
+}
+
+// Secondary Relations
+model Service {
+  id BigInt @id @default(autoincrement())
+
+  laundry      Boolean @default(false)
+  kitchen      Boolean @default(false)
+  wifi         Boolean @default(false)
+  tv           Boolean @default(false)
+  phone        Boolean @default(false)
+  ac           Boolean @default(false)
+  office_space Boolean @default(false)
+  beach_access Boolean @default(false)
+  pets         Boolean @default(false)
 
   accomodations Accomodation[]
-  created_at    DateTime       @default(now())
-  updated_at    DateTime       @updatedAt
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 
   @@map("services")
 }
@@ -97,93 +128,10 @@ model Image {
   url String @unique
 
   accomodation_id BigInt
-  created_at      DateTime     @default(now())
-  updated_at      DateTime     @updatedAt
-  Accomodation    Accomodation @relation(fields: [accomodation_id], references: [id])
+  accomodation    Accomodation @relation(fields: [accomodation_id], references: [id])
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 
   @@map("images")
-}
-
-model Location {
-  id      BigInt @id @default(dbgenerated("ulid_generate()"))
-  address String
-  city    String
-  state   String
-  country String
-  lat     Float
-  lng     Float
-
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-
-  accomodation_id BigInt
-  Accomodation    Accomodation[]
-
-  @@map("locations")
-}
-
-model Booking {
-  id           BigInt       @id @default(dbgenerated("ulid_generate()"))
-  total_price  Float
-  accomodation Accomodation @relation(fields: [accomodation_id], references: [id])
-  user         User         @relation(fields: [user_id], references: [id])
-
-  initial_date DateTime
-  final_date   DateTime
-
-  checked_in  Boolean @default(false)
-  checked_out Boolean @default(false)
-  cancelled   Boolean @default(false)
-
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-
-  user_id         BigInt
-  accomodation_id BigInt
-
-  @@map("bookings")
-}
-
-model Favorite {
-  id      BigInt @id @default(dbgenerated("ulid_generate()"))
-  user    User   @relation(fields: [user_id], references: [id])
-  user_id BigInt
-
-  accomodation    Accomodation @relation(fields: [accomodation_id], references: [id])
-  accomodation_id BigInt
-
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-
-  @@map("favorites")
-}
-
-model Comment {
-  id      BigInt @id @default(dbgenerated("ulid_generate()"))
-  user    User   @relation(fields: [user_id], references: [id])
-  user_id BigInt
-
-  accomodation    Accomodation @relation(fields: [accomodation_id], references: [id])
-  accomodation_id BigInt
-
-  content    String
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-
-  @@map("comments")
-}
-
-model Star {
-  id      BigInt @id @default(dbgenerated("ulid_generate()"))
-  value   Float
-  user    User   @relation(fields: [user_id], references: [id])
-  user_id BigInt
-
-  accomodation    Accomodation @relation(fields: [accomodation_id], references: [id])
-  accomodation_id BigInt
-
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-
-  @@map("stars")
 }

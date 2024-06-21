@@ -1,315 +1,292 @@
-export interface ImagesAccomodation {
-  id: bigint
+import { z } from 'zod'
+import { User } from './user.entity'
+
+export interface ImageAccomodation {
+  id?: bigint
   url: string
 }
 
-export interface ServicesAccomodation {
-  id: bigint
+export interface ServiceAccomodation {
+  id?: bigint
+  kitchen: boolean
   laundry: boolean
   wifi: boolean
   tv: boolean
   phone: boolean
   ac: boolean
-}
-
-export interface LocationAccomodation {
-  id: bigint
-  address: string
-  city: string
-  state: string
-  country: string
-  lat: number
-  lng: number
+  office_space: boolean
+  beach_access: boolean
+  pets: boolean
 }
 
 export interface IAccomodation {
   id?: bigint
-  host_id: bigint
+  host: User
+
   title: string
-  description: string
-  images: ImagesAccomodation[]
+  description?: string
+  images: ImageAccomodation[]
   category_id: bigint
+
   price_per_night: number
   cleaning_fee: number
-  discount?: number
-  guests: number
-  babies?: number
-  accepts_pets: boolean
-  pets?: number
+
   rooms: number
   beds: number
   bathrooms: number
-  kitchen: boolean
-  services: ServicesAccomodation
-  location: LocationAccomodation
-  register_step?: string
+  services: ServiceAccomodation
+
+  created_at: Date
 }
 
 export class Accomodation {
-  private _id: bigint
-  private _host_id: bigint
-  private _title: string
-  private _description: string
-  private _images: ImagesAccomodation[]
-  private _category_id: bigint
-  private _price_per_night: number
-  private _cleaning_fee: number
-  private _discount: number
-  private _guests: number
-  private _babies: number
-  private _accepts_pets: boolean
-  private _pets: number
-  private _rooms: number
-  private _beds: number
-  private _bathrooms: number
-  private _kitchen: boolean
-  private _services: ServicesAccomodation
-  private _location: LocationAccomodation
-  private _register_step: string
+  private Id: bigint
+  private Host: User
+
+  private Title: string
+  private Description?: string
+  private Images: ImageAccomodation[]
+  private CategoryId: bigint
+
+  private PricePerNight: number
+  private CleaningFee: number
+
+  private Rooms: number
+  private Beds: number
+  private Bathrooms: number
+  private Services: ServiceAccomodation
+
+  private CreatedAt: Date
 
   constructor(accomodation: IAccomodation) {
-    if (accomodation.id && !this.isIdValid(accomodation.id)) {
-      throw new Error('INVALID_ID')
+    if (accomodation.id && !this.isValidId(accomodation.id).success) {
+      throw new Error(this.isValidId(accomodation.id).error)
     }
-    if (!this.isIdValid(accomodation.host_id)) {
-      throw new Error('INVALID_HOST_ID')
+    if (!this.isValidHoster(accomodation.host)) {
+      throw new Error('INVALID_USER_HOST')
     }
     if (!this.isValidTitle(accomodation.title)) {
-      throw new Error('INVALID_TITLE')
+      throw new Error(this.isValidTitle(accomodation.title).error)
     }
     if (!this.isValidDescription(accomodation.description)) {
-      throw new Error('INVALID_DESCRIPTION')
-    }
-    if (!this.isValidImage(accomodation.images)) {
-      throw new Error('INVALID_IMAGES')
+      throw new Error(this.isValidDescription(accomodation.description).error)
     }
     if (!this.isValidCategoryId(accomodation.category_id)) {
-      throw new Error('INVALID_CATEGORY_ID')
+      throw new Error(this.isValidCategoryId(accomodation.category_id).error)
     }
     if (!this.isValidPricePerNight(accomodation.price_per_night)) {
-      throw new Error('INVALID_PRICE_PER_NIGHT')
+      throw new Error(this.isValidPricePerNight(accomodation.price_per_night).error)
     }
     if (!this.isValidCleaningFee(accomodation.cleaning_fee)) {
-      throw new Error('INVALID_CLEANING_FEE')
-    }
-    if (accomodation.discount && !this.isValidDiscount(accomodation.discount)) {
-      throw new Error('INVALID_DISCOUNT')
-    }
-    if (!this.isValidGuests(accomodation.guests)) {
-      throw new Error('INVALID_GUESTS')
-    }
-    if (accomodation.babies && !this.isValidBabies(accomodation.babies)) {
-      throw new Error('INVALID_BABIES')
-    }
-    if (accomodation.accepts_pets && !this.isValidAcceptsPets(accomodation.accepts_pets)) {
-      throw new Error('INVALID_ACCEPTS_PETS')
-    }
-    if (
-      accomodation.accepts_pets &&
-      accomodation.pets &&
-      !this.isValidPets(accomodation.pets)
-    ) {
-      throw new Error('INVALID_PETS')
+      throw new Error(this.isValidCleaningFee(accomodation.cleaning_fee).error)
     }
     if (!this.isValidRooms(accomodation.rooms)) {
-      throw new Error('INVALID_ROOMS')
+      throw new Error(this.isValidRooms(accomodation.rooms).error)
     }
     if (!this.isValidBeds(accomodation.beds)) {
-      throw new Error('INVALID_BEDS')
+      throw new Error(this.isValidBeds(accomodation.beds).error)
     }
     if (!this.isValidBathrooms(accomodation.bathrooms)) {
-      throw new Error('INVALID_BATHROOMS')
-    }
-    if (!this.isValidKitchen(accomodation.kitchen)) {
-      throw new Error('INVALID_KITCHEN')
+      throw new Error(this.isValidBathrooms(accomodation.bathrooms).error)
     }
     if (!this.isValidServices(accomodation.services)) {
       throw new Error('INVALID_SERVICES')
     }
-    if (!this.isValidLocation(accomodation.location)) {
-      throw new Error('INVALID_LOCATION')
+    if (!this.isValidCreatedAt(accomodation.created_at)) {
+      throw new Error(this.isValidCreatedAt(accomodation.created_at).error)
     }
-    if (accomodation.register_step && !this.isValidRegisterStep(accomodation.register_step)) {
-      throw new Error('INVALID_REGISTER_STEP')
+    if (accomodation.images && !this.isValidImages(accomodation.images)) {
+      throw new Error('INVALID_IMAGES')
     }
 
-    this._id = accomodation.id || BigInt(0)
-    this._host_id = accomodation.host_id
-    this._title = accomodation.title
-    this._description = accomodation.description
-    this._images = accomodation.images
-    this._category_id = accomodation.category_id
-    this._price_per_night = accomodation.price_per_night
-    this._cleaning_fee = accomodation.cleaning_fee
-    this._discount = accomodation.discount ?? 0
-    this._guests = accomodation.guests
-    this._babies = accomodation.babies || 0
-    this._accepts_pets = accomodation.accepts_pets
-    this._pets = accomodation.pets || 0
-    this._rooms = accomodation.rooms
-    this._beds = accomodation.beds
-    this._bathrooms = accomodation.bathrooms
-    this._kitchen = accomodation.kitchen
-    this._services = accomodation.services
-    this._location = accomodation.location
-    this._register_step = accomodation.register_step ?? ''
+    this.Id = accomodation.id || BigInt(0)
+    this.Host = accomodation.host
+
+    this.Title = accomodation.title
+    this.Description = accomodation.description
+    this.Images = accomodation.images
+    this.CategoryId = accomodation.category_id
+
+    this.PricePerNight = accomodation.price_per_night
+    this.CleaningFee = accomodation.cleaning_fee
+
+    this.Rooms = accomodation.rooms
+    this.Beds = accomodation.beds
+    this.Bathrooms = accomodation.bathrooms
+    this.Services = accomodation.services
+    this.CreatedAt = accomodation.created_at
   }
 
   get id(): bigint {
-    return this._id
+    return this.Id
   }
 
-  get host_id(): bigint {
-    return this._host_id
+  get host(): User {
+    return this.Host
   }
 
   get title(): string {
-    return this._title
+    return this.Title
   }
 
-  get description(): string {
-    return this._description
+  get description(): string | undefined {
+    return this.Description
   }
 
-  get images(): ImagesAccomodation[] {
-    return this._images
+  get images(): ImageAccomodation[] {
+    return this.Images
   }
 
-  get category_id(): bigint {
-    return this._category_id
+  get categoryId(): bigint {
+    return this.CategoryId
   }
 
-  get price_per_night(): number {
-    return this._price_per_night
+  get pricePerNight(): number {
+    return this.PricePerNight
   }
 
-  get cleaning_fee(): number {
-    return this._cleaning_fee
-  }
-
-  get discount(): number {
-    return this._discount
-  }
-
-  get guests(): number {
-    return this._guests
-  }
-
-  get babies(): number {
-    return this._babies
-  }
-
-  get accepts_pets(): boolean {
-    return this._accepts_pets
-  }
-
-  get pets(): number {
-    return this._pets
+  get cleaningFee(): number {
+    return this.CleaningFee
   }
 
   get rooms(): number {
-    return this._rooms
+    return this.Rooms
   }
 
   get beds(): number {
-    return this._beds
+    return this.Beds
   }
 
   get bathrooms(): number {
-    return this._bathrooms
+    return this.Bathrooms
   }
 
-  get kitchen(): boolean {
-    return this._kitchen
+  get services(): ServiceAccomodation {
+    return this.Services
   }
 
-  get services(): ServicesAccomodation {
-    return this._services
+  get createdAt(): Date {
+    return this.CreatedAt
   }
 
-  get location(): LocationAccomodation {
-    return this._location
+  private isValidId(id: bigint): ReturnValidation {
+    const validate = z.bigint({ message: 'INVALID_ID' })
+
+    return {
+      success: validate.safeParse(id).success,
+      error: validate.safeParse(id).error?.message
+    }
   }
 
-  get register_step(): string {
-    return this._register_step
+  private isValidHoster(host: User): boolean {
+    return host instanceof User && typeof host.id === 'bigint'
   }
 
-  private isIdValid(id: bigint): boolean {
-    return typeof id === 'bigint' && id > 0
+  private isValidTitle(title: string): ReturnValidation {
+    const validate = z.string({ message: 'INVALID_TITLE' })
+
+    return {
+      success: validate.safeParse(title).success,
+      error: validate.safeParse(title).error?.message
+    }
   }
 
-  private isValidTitle(title: string): boolean {
-    return typeof title === 'string' && title.length > 10
+  private isValidDescription(description?: string): ReturnValidation {
+    const validate = z.string({ message: 'INVALID_DESCRIPTION' }).optional()
+
+    return {
+      success: validate.safeParse(description).success,
+      error: validate.safeParse(description).error?.message
+    }
   }
 
-  private isValidDescription(description: string): boolean {
-    return (
-      typeof description === 'string' && description.length > 10 && description.length < 200
-    )
+  private isValidCategoryId(categoryId: bigint): ReturnValidation {
+    const validate = z.bigint({ message: 'INVALID_CATEGORY_ID' })
+
+    return {
+      success: validate.safeParse(categoryId).success,
+      error: validate.safeParse(categoryId).error?.message
+    }
   }
 
-  private isValidImage(images: ImagesAccomodation[]): boolean {
-    return images.length > 0
+  private isValidPricePerNight(pricePerNight: number): ReturnValidation {
+    const validate = z.number({ message: 'INVALID_PRICE_PER_NIGHT' })
+
+    return {
+      success: validate.safeParse(pricePerNight).success,
+      error: validate.safeParse(pricePerNight).error?.message
+    }
   }
 
-  private isValidCategoryId(category_id: bigint): boolean {
-    return typeof category_id === 'bigint'
+  private isValidCleaningFee(cleaningFee: number): ReturnValidation {
+    const validate = z.number({ message: 'INVALID_CLEANING_FEE' })
+
+    return {
+      success: validate.safeParse(cleaningFee).success,
+      error: validate.safeParse(cleaningFee).error?.message
+    }
   }
 
-  private isValidPricePerNight(price_per_night: number): boolean {
-    return typeof price_per_night === 'number' && price_per_night > 0
+  private isValidRooms(rooms: number): ReturnValidation {
+    const validate = z.number({ message: 'INVALID_ROOMS' })
+
+    return {
+      success: validate.safeParse(rooms).success,
+      error: validate.safeParse(rooms).error?.message
+    }
   }
 
-  private isValidCleaningFee(cleaning_fee: number): boolean {
-    return typeof cleaning_fee === 'number' && cleaning_fee > 0
+  private isValidBeds(beds: number): ReturnValidation {
+    const validate = z.number({ message: 'INVALID_BEDS' })
+
+    return {
+      success: validate.safeParse(beds).success,
+      error: validate.safeParse(beds).error?.message
+    }
   }
 
-  private isValidDiscount(discount: number): boolean {
-    return typeof discount === 'number' && discount >= 0
+  private isValidBathrooms(bathrooms: number): ReturnValidation {
+    const validate = z.number({ message: 'INVALID_BATHROOMS' })
+
+    return {
+      success: validate.safeParse(bathrooms).success,
+      error: validate.safeParse(bathrooms).error?.message
+    }
   }
 
-  private isValidGuests(guests: number): boolean {
-    return typeof guests === 'number' && guests > 0
+  private isValidServices(services: ServiceAccomodation): boolean {
+    return z
+      .object({
+        laundry: z.boolean(),
+        kitchen: z.boolean(),
+        wifi: z.boolean(),
+        tv: z.boolean(),
+        phone: z.boolean(),
+        ac: z.boolean(),
+        office_space: z.boolean(),
+        beach_access: z.boolean(),
+        pets: z.boolean()
+      })
+      .safeParse(services).success
   }
 
-  private isValidBabies(babies: number): boolean {
-    return typeof babies === 'number' && babies >= 0
+  private isValidImages(images: ImageAccomodation[]): boolean {
+    return images.every(image => {
+      return z
+        .object({
+          id: z.bigint(),
+          url: z.string()
+        })
+        .safeParse(image).success
+    })
   }
 
-  private isValidAcceptsPets(accepts_pets: boolean): boolean {
-    return typeof accepts_pets === 'boolean'
-  }
+  private isValidCreatedAt(createdAt: Date): ReturnValidation {
+    const validate = z.date({ message: 'INVALID_CREATED_AT' })
 
-  private isValidPets(pets: number): boolean {
-    return typeof pets === 'number' && pets >= 0
-  }
-
-  private isValidRooms(rooms: number): boolean {
-    return typeof rooms === 'number' && rooms > 0
-  }
-
-  private isValidBeds(beds: number): boolean {
-    return typeof beds === 'number' && beds > 0
-  }
-
-  private isValidBathrooms(bathrooms: number): boolean {
-    return typeof bathrooms === 'number' && bathrooms > 0
-  }
-
-  private isValidKitchen(kitchen: boolean): boolean {
-    return typeof kitchen === 'boolean'
-  }
-
-  private isValidServices(services: ServicesAccomodation): boolean {
-    return typeof services === 'object'
-  }
-
-  private isValidLocation(location: LocationAccomodation): boolean {
-    return typeof location === 'object'
-  }
-
-  private isValidRegisterStep(register_step: string): boolean {
-    return typeof register_step === 'string'
+    return {
+      success: validate.safeParse(createdAt).success,
+      error: validate.safeParse(createdAt).error?.message
+    }
   }
 }
