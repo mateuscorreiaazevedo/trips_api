@@ -2,6 +2,7 @@ import cors from '@fastify/cors'
 import jwt from '@fastify/jwt'
 import fastify from 'fastify'
 import dotenv from 'dotenv'
+import { userRoutes } from '@presentation/interfaces/routes'
 
 const app = fastify()
 dotenv.config()
@@ -17,6 +18,8 @@ app.register(cors, {
 app.register(jwt, {
   secret
 })
+
+app.register(userRoutes)
 
 app.get('/api/hello', () => {
   return 'Hello World'
