@@ -1,10 +1,10 @@
 import {
-  LoginAuthenticationRequestDTO,
-  LoginAuthenticationResponseDTO
+  VerifyPasswordRequestDTO,
+  VerifyPasswordResponseDTO
 } from '@core/application/dtos/authentication'
 import { AuthenticationGateway } from '@core/domains/gateways'
 
-export class LoginAuthenticationUseCase {
+export class VerifyPasswordUseCase {
   private AuthGate: AuthenticationGateway
 
   constructor(AuthGate: AuthenticationGateway) {
@@ -12,11 +12,11 @@ export class LoginAuthenticationUseCase {
   }
 
   async execute(
-    loginAuthRequestDto: LoginAuthenticationRequestDTO
-  ): Promise<LoginAuthenticationResponseDTO> {
-    const { password, user } = loginAuthRequestDto
+    verifyPasswordRequestDto: VerifyPasswordRequestDTO
+  ): Promise<VerifyPasswordResponseDTO> {
+    const { password, user } = verifyPasswordRequestDto
 
-    const authentication = await this.AuthGate.login(user, password)
+    const authentication = await this.AuthGate.verifyPassword(user, password)
 
     if (!authentication) {
       throw new Error('INVALID_CREDENTIALS')

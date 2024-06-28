@@ -6,7 +6,7 @@ import { HashHelper } from '@core/shared/utils/hash-helper'
 const hashHelper = new HashHelper()
 
 export class JwtAuthenticationRepository extends JwtAdapter implements AuthenticationGateway {
-  async login(user: User, password: string): Promise<Authentication | null> {
+  async verifyPassword(user: User, password: string): Promise<Authentication | null> {
     const validatePassword = await hashHelper.compare(password, user.password)
     if (!validatePassword) {
       return null

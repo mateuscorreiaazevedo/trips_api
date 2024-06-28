@@ -1,10 +1,10 @@
 import { User } from '@core/domains/entities'
 
-export interface LoginAuthenticationRequestDTO {
+export interface VerifyPasswordRequestDTO {
   user: User
   password: string
 }
 
-export interface LoginAuthenticationResponseDTO {
+export interface VerifyPasswordResponseDTO {
   token: string
 }
