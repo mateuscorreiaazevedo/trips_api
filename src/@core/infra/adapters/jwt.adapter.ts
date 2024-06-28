@@ -2,7 +2,7 @@ import jwt from 'jsonwebtoken'
 
 const JWT_SECRET = process.env.JWT_SECRET || 'secret'
 
-export class JwtHelper {
+export class JwtAdapter {
   generateToken(payload: object): string {
     const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '30d' })
 
