@@ -1,7 +1,4 @@
-import {
-  CreateUserRequestDTO,
-  CreateUserResponseDTO
-} from '@core/application/dtos/user/create-user.dtos'
+import { CreateUserRequestDTO, CreateUserResponseDTO } from '@core/application/dtos/user'
 import { User } from '@core/domains/entities'
 import { UserGateway } from '@core/domains/gateways'
 import dayjs from '@core/shared/libs/dayjs'
@@ -17,9 +14,7 @@ export class CreateUserUseCase {
     const { email, firstName, lastName, birthDate, password, confirmPassword, timezone } =
       createUserRequestDto
 
-    console.log(dayjs.tz(birthDate, timezone).toDate())
-
-    const emailExist = await this.UserGate.getUserByEmail(email)
+    const emailExist = await this.UserGate.findByEmail(email)
 
     if (emailExist) {
       throw new Error('EMAIL_ALREADY_EXIST')
@@ -42,7 +37,13 @@ export class CreateUserUseCase {
     const response = await this.UserGate.create(user)
 
     return {
-      token: response.token
+      id: response.id,
+      firstName,
+      lastName,
+      email,
+      birthDate: birthDateFormated.toISOString(),
+      avatarUrl: response.avatarUrl,
+      createdAt: response.createdAt.toISOString()
     }
   }
 }

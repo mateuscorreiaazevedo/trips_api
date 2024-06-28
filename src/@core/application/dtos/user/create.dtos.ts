@@ -9,5 +9,11 @@ export interface CreateUserRequestDTO {
 }
 
 export interface CreateUserResponseDTO {
-  token: string
+  id: string
+  firstName: string
+  lastName: string
+  email: string
+  birthDate: string
+  avatarUrl?: string
+  createdAt: string
 }

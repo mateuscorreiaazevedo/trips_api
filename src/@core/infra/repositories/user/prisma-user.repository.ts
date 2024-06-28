@@ -1,14 +1,13 @@
-import { Authentication, User } from '@core/domains/entities'
+import { User } from '@core/domains/entities'
 import { UserGateway } from '@core/domains/gateways'
 import { PrismaAdapter } from '@core/infra/adapters'
 import { HashHelper } from '@core/shared/utils/hash-helper'
-import { JwtHelper } from '@core/shared/utils/jwt-helper'
 
 const hashHelper = new HashHelper()
-const jwtHelper = new JwtHelper()
 
 export class PrismaUserRepository extends PrismaAdapter implements UserGateway {
-  async create(user: User): Promise<Authentication> {
+  // Create a new user
+  async create(user: User): Promise<User> {
     const hashedPassword = await hashHelper.encrypt(user.password)
 
     const response = await this.prismaAdapter.user.create({
@@ -22,14 +21,13 @@ export class PrismaUserRepository extends PrismaAdapter implements UserGateway {
       }
     })
 
-    const token = jwtHelper.generateToken({
-      id: response.id
-    })
+    const { avatarUrl, ...rest } = response
 
-    return new Authentication(token)
+    return new User({ avatarUrl: avatarUrl ?? undefined, ...rest })
   }
 
-  async getUserById(id: string): Promise<User | null> {
+  // Find a user by id
+  async findById(id: string): Promise<User | null> {
     const user = await this.prismaAdapter.user.findUnique({
       where: {
         id
@@ -45,28 +43,11 @@ export class PrismaUserRepository extends PrismaAdapter implements UserGateway {
     return new User({ avatarUrl: avatarUrl ?? undefined, ...rest })
   }
 
-  async getUserByEmail(email: string): Promise<User | null> {
+  // Find a user by email
+  async findByEmail(email: string): Promise<User | null> {
     const user = await this.prismaAdapter.user.findUnique({
       where: {
         email
-      }
-    })
-
-    if (!user) {
-      return null
-    }
-
-    const { avatarUrl, ...rest } = user
-
-    return new User({ avatarUrl: avatarUrl ?? undefined, ...rest })
-  }
-
-  async me(token: string): Promise<User | null> {
-    const { id } = jwtHelper.verifyToken<{ id: string }>(token)
-
-    const user = await this.prismaAdapter.user.findUnique({
-      where: {
-        id
       }
     })
 

@@ -1,7 +1,7 @@
 import { UserGateway } from '@core/domains/gateways'
 import { GetUserByIdRequestDTO, GetUserByIdResponseDTO } from '../../dtos/user'
 
-export class GetUserByIdUseCase {
+export class FindUserByIdUseCase {
   private UserGate: UserGateway
 
   constructor(userGate: UserGateway) {
@@ -11,7 +11,11 @@ export class GetUserByIdUseCase {
   async execute(getByIdRequestDto: GetUserByIdRequestDTO): Promise<GetUserByIdResponseDTO> {
     const { id } = getByIdRequestDto
 
-    const user = await this.UserGate.getUserById(id)
+    const user = await this.UserGate.findById(id)
+
+    if (!user) {
+      throw new Error('USER_NOT_FOUND')
+    }
 
     return {
       id: user.id,

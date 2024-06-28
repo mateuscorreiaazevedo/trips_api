@@ -1,16 +1,16 @@
-import { GetUserByIdRequestDTO } from '@core/application/dtos/user'
-import { GetUserByIdUseCase } from '@core/application/use-cases/user'
+import { FindUserByIdRequestDTO } from '@core/application/dtos/user'
+import { FindUserByIdUseCase } from '@core/application/use-cases/user'
 import { PrismaUserRepository } from '@core/infra/repositories/user'
 import { FastifyReply, FastifyRequest } from 'fastify'
 
 const prismaUserRepository = new PrismaUserRepository()
-const getUserByIdUseCase = new GetUserByIdUseCase(prismaUserRepository)
+const findUserByIdUsecase = new FindUserByIdUseCase(prismaUserRepository)
 
 export async function getUserByIdController(req: FastifyRequest, reply: FastifyReply) {
   try {
-    const { id } = req.params as GetUserByIdRequestDTO
+    const { id } = req.params as FindUserByIdRequestDTO
 
-    const user = await getUserByIdUseCase.execute({ id })
+    const user = await findUserByIdUsecase.execute({ id })
 
     reply.status(200).send({ data: user })
   } catch (error) {

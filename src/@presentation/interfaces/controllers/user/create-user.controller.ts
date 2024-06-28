@@ -11,9 +11,9 @@ export async function createUserController(req: FastifyRequest, reply: FastifyRe
     const data = req.body as CreateUserRequestDTO
     const { timezone } = req.headers as { timezone: string }
 
-    const response = await createUserUseCase.execute({ ...data, timezone })
+    const user = await createUserUseCase.execute({ ...data, timezone })
 
-    reply.status(201).send(response)
+    reply.status(201).send({ data: user })
   } catch (error) {
     reply.status(400).send({ message: (error as Error).message })
   }

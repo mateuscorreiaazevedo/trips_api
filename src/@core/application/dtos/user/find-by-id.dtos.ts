@@ -1,8 +1,8 @@
-export interface GetUserByIdRequestDTO {
+export interface FindUserByIdRequestDTO {
   id: string
 }
 
-export interface GetUserByIdResponseDTO {
+export interface FindUserByIdResponseDTO {
   id: string
   email: string
   firstName: string
