@@ -1,2 +1,3 @@
 export * from './get-user-by-id.dtos'
-export * from './get-user-by-email.dtos'
+export * from './create-user.dtos'
+export * from './get-me.dtos'

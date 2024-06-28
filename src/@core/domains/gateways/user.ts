@@ -1,6 +1,8 @@
-import { User } from '../entities'
+import { Authentication, User } from '../entities'
 
 export interface UserGateway {
-  getUserById(id: string): Promise<User>
-  getUserByEmail(email: string): Promise<User>
+  create(user: User): Promise<Authentication>
+  getUserById(id: string): Promise<User | null>
+  getUserByEmail(email: string): Promise<User | null>
+  me(token: string): Promise<User | null>
 }
